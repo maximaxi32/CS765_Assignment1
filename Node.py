@@ -1,5 +1,6 @@
 import uuid
 import datetime as dt
+import random
 
 # Class to store the Node
 class Node:
@@ -18,6 +19,17 @@ class Node:
 
     def setLowCPU(self, isLowCPU):
         self.isLowCPU = isLowCPU
+
+
+    def generateTransaction(self,ListOfPeers):
+        n=len(ListOfPeers)        #number of Nodes in network
+        whomToSend=ListOfPeers[random.randint(0,n-1)]
+        while whomToSend==self.Id:
+                whomToSend=ListOfPeers[random.randint(0,n-1)]
+        whatToSend=random.randint(1,self.balance)
+        self.balance-=whatToSend
+        return "TxnID:"+self.Id+" pays "+whomToSend+" "+str(whatToSend)+" coins"
+         
     
     #TODO: SetNeighbors
     #TODO: GetNeighbors

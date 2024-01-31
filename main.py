@@ -27,7 +27,7 @@ def main():
         ListOfPeers.append(Node())
     assign_z0(ListOfPeers, z0, n)
     assign_z1(ListOfPeers, z1, n)
-
+    print("Ok")
     # Creating the network of nodes
     createNetwork(ListOfPeers)
 
