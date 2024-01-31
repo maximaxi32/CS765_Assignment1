@@ -31,6 +31,9 @@ def main():
     # Creating the network of nodes
     createNetwork(ListOfPeers)
 
+    for _ in range(n):
+        print(ListOfPeers[_].getID)
+
 
 # Funtion to assign isSlow to the Nodes
 def assign_z0(ListOfPeers, z0, n):

@@ -1,6 +1,7 @@
 import uuid
 import datetime as dt
 
+
 # Class to store the Node
 class Node:
     def __init__(self):
@@ -18,6 +19,6 @@ class Node:
 
     def setLowCPU(self, isLowCPU):
         self.isLowCPU = isLowCPU
-    
-    #TODO: SetNeighbors
-    #TODO: GetNeighbors
+
+    # TODO: SetNeighbors
+    # TODO: GetNeighbors
