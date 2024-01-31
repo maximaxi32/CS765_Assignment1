@@ -4,6 +4,6 @@ def createNetwork(ListofPeers):
 
 # To check if the network is a connected graph or not
 def isConnected(ListofPeers):
-    # TODO: Implement BFS/DFS
+    # TODO: Implement BFS/DFS/union find
     pass
 
