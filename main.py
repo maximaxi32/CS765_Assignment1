@@ -36,7 +36,8 @@ def main():
 def assign_z0(ListOfPeers, z0, n):
     numTrues = int((z0 * n) / 100)
     labels = [True] * numTrues
-    labels.append([False] * (n - numTrues))
+    labelsFalse=[False] * (n - numTrues)
+    labels+=labelsFalse
     random.shuffle(labels)
     for _ in range(n):
         ListOfPeers[_].setSlow(labels[_])
@@ -46,7 +47,8 @@ def assign_z0(ListOfPeers, z0, n):
 def assign_z1(ListOfPeers, z1, n):
     numTrues = int((z1 * n) / 100)
     labels = [True] * numTrues
-    labels.append([False] * (n - numTrues))
+    labelsFalse=[False] * (n - numTrues)
+    labels+=labelsFalse
     random.shuffle(labels)
     for _ in range(n):
         ListOfPeers[_].setLowCPU(labels[_])
