@@ -8,6 +8,7 @@ import Node
 
 # To create a network of Peer Nodes
 def createNetwork(ListofPeers):
+    # generate a new P2P network
     for _ in range(0, len(ListofPeers)):
         numOfNeighbors = random.randint(3, 6) - len(ListofPeers[_].getNeighbors())
         if numOfNeighbors <= 0:
@@ -28,10 +29,16 @@ def createNetwork(ListofPeers):
                 newNeighbor.addNeighbor(ListofPeers[_])
                 numOfNeighbors -= 1
 
+    # check if the generated P2P network is connected or not
+    if isConnected(ListofPeers) == False:
+        for _ in range(0, len(ListofPeers)):
+            ListofPeers[_].neighbors = []
+            print("Issue: Generated network is disconnected")
+    else:
+        print("Generated a connected network!")
+
 
 # To check if the network is a connected graph or not
-
-
 def isConnected(ListOfPeers):
     if not ListOfPeers:
         return True
@@ -40,9 +47,10 @@ def isConnected(ListOfPeers):
     dfs(start_node, visited)
     return len(visited) == len(ListOfPeers)
 
+
 def dfs(node, visited):
     visited.add(node)
-    currNeighbors = node.GetNeighbors()
+    currNeighbors = node.getNeighbors()
     for neighbor in currNeighbors:
         if neighbor not in visited:
             dfs(neighbor, visited)

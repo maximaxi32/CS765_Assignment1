@@ -31,13 +31,9 @@ def main():
     # Creating the network of nodes
     createNetwork(ListOfPeers)
 
-    for _ in range(n):
-        # print(str(ListOfPeers[_].getID()))
-        # tempneigh = list(ListOfPeers[_].getNeighbors())
-        # for i in tempneigh:                 
-        #     print(i.getID(), end=", ")
-        print (len(list(ListOfPeers[_].getNeighbors())))
-        # print("\n")
+    # for _ in range(n):
+    # print (str(ListOfPeers[_].getID()))
+    # print (len(list(ListOfPeers[_].getNeighbors())))
 
 
 # Funtion to assign isSlow to the Nodes
