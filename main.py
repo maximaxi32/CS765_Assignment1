@@ -24,7 +24,7 @@ def main():
     # Initializing the list of peer nodes
     ListOfPeers = []
     for _ in range(0, n):
-        ListOfPeers.append(Node())
+        ListOfPeers.append(Node.Node())
     assign_z0(ListOfPeers, z0, n)
     assign_z1(ListOfPeers, z1, n)
 
@@ -32,15 +32,20 @@ def main():
     createNetwork(ListOfPeers)
 
     for _ in range(n):
-        print(ListOfPeers[_].getID)
+        # print(str(ListOfPeers[_].getID()))
+        # tempneigh = list(ListOfPeers[_].getNeighbors())
+        # for i in tempneigh:                 
+        #     print(i.getID(), end=", ")
+        print (len(list(ListOfPeers[_].getNeighbors())))
+        # print("\n")
 
 
 # Funtion to assign isSlow to the Nodes
 def assign_z0(ListOfPeers, z0, n):
     numTrues = int((z0 * n) / 100)
     labels = [True] * numTrues
-    labelsFalse=[False] * (n - numTrues)
-    labels+=labelsFalse
+    labelsFalse = [False] * (n - numTrues)
+    labels += labelsFalse
     random.shuffle(labels)
     for _ in range(n):
         ListOfPeers[_].setSlow(labels[_])
@@ -50,8 +55,8 @@ def assign_z0(ListOfPeers, z0, n):
 def assign_z1(ListOfPeers, z1, n):
     numTrues = int((z1 * n) / 100)
     labels = [True] * numTrues
-    labelsFalse=[False] * (n - numTrues)
-    labels+=labelsFalse
+    labelsFalse = [False] * (n - numTrues)
+    labels += labelsFalse
     random.shuffle(labels)
     for _ in range(n):
         ListOfPeers[_].setLowCPU(labels[_])
