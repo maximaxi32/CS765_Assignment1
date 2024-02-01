@@ -24,7 +24,7 @@ def main():
     # Initializing the list of peer nodes
     ListOfPeers = []
     for _ in range(0, n):
-        ListOfPeers.append(Node())
+        ListOfPeers.append(Node.Node())
     assign_z0(ListOfPeers, z0, n)
     assign_z1(ListOfPeers, z1, n)
     print("Ok")
@@ -56,3 +56,4 @@ def assign_z1(ListOfPeers, z1, n):
 
 if __name__ == "__main__":
     main()
+    
