@@ -5,7 +5,7 @@ import numpy as np
 import random
 import math
 # importing other modules
-
+import Latency
 
 # Class to store the Node
 class Node:
@@ -23,9 +23,15 @@ class Node:
 
     def setSlow(self, isSlow):
         self.isSlow = isSlow
+        
+    def getSlow(self):
+        return self.isSlow
 
     def setLowCPU(self, isLowCPU):
         self.isLowCPU = isLowCPU
+        
+    def getLowCPU(self):
+        return self.isLowCPU
 
     # Add one new neighbor to this node
     def addNeighbor(self, newNeighbor):
