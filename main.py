@@ -16,23 +16,28 @@ def main():
     parser.add_argument("--n", type=int, required=True)
     parser.add_argument("--z0", type=float, required=True)
     parser.add_argument("--z1", type=float, required=True)
+    parser.add_argument("--Tx", type=float, required=True)
     args = parser.parse_args()
     n = args.n
     z0 = args.z0
     z1 = args.z1
+    Tx = args.Tx
 
     # Initializing the list of peer nodes
     ListOfPeers = []
     for _ in range(0, n):
-        ListOfPeers.append(Node.Node())
+        ListOfPeers.append(Node.Node(Tx))
     assign_z0(ListOfPeers, z0, n)
     assign_z1(ListOfPeers, z1, n)
-    print("Ok")
     # Creating the network of nodes
     createNetwork(ListOfPeers)
+    globalTime=0
+    for globalTime in range(50):
+        for i in range(n):
+            print(next(ListOfPeers[i].generateTransaction(globalTime,ListOfPeers)))
 
 
-# Funtion to assign isSlow to the Nodes
+# Function to assign isSlow to the Nodes
 def assign_z0(ListOfPeers, z0, n):
     numTrues = int((z0 * n) / 100)
     labels = [True] * numTrues
@@ -43,7 +48,7 @@ def assign_z0(ListOfPeers, z0, n):
         ListOfPeers[_].setSlow(labels[_])
 
 
-# Funtion to assign isLowCPU to the Nodes
+# Function to assign isLowCPU to the Nodes
 def assign_z1(ListOfPeers, z1, n):
     numTrues = int((z1 * n) / 100)
     labels = [True] * numTrues
