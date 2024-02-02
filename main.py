@@ -31,6 +31,7 @@ def main():
     assign_z1(ListOfPeers, z1, n)
     # Creating the network of nodes
     createNetwork(ListOfPeers)
+    
     globalTime=0
     for globalTime in range(50):
         for i in range(n):
