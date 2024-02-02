@@ -50,7 +50,6 @@ class Node:
     def printTransaction(self,ListOfPeers):
         n=len(ListOfPeers)        #number of Nodes in network
         whomToSend=ListOfPeers[random.randint(0,n-1)]
-        print(Latency.generateLatency(ListOfPeers))
         while whomToSend==self.Id:
             whomToSend=ListOfPeers[random.randint(0,n-1)]
         if self.balance>1:
