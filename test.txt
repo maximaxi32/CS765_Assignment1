@@ -1,0 +1,21 @@
+Generated a connected network!
+generateTransaction
+mineBlock
+generateTransaction
+mineBlock
+mineBlock
+generateTransaction
+generateTransaction
+mineBlock
+mineBlock
+generateTransaction
+mineBlock
+generateTransaction
+mineBlock
+generateTransaction
+generateTransaction
+mineBlock
+mineBlock
+generateTransaction
+generateTransaction
+mineBlock

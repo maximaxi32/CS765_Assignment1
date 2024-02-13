@@ -16,20 +16,12 @@ class Transaction():
         self.type=type
         self.amount=amount
 
-        
-        
-
-
-
-
-
-
     
-    def printTransaction(self):
-        # TODO fetch balance from blockchain
-        # self.balance-=float(whatToSend)
-        # ListOfPeers[indexwhomToSend].addBalance(float(whatToSend))
-        # print(self.timestamp)
-        print("TxnID: "+str(self.sender)+" pays "+str(self.receiver)+" "+str(self.amount)+" coins")
+    def printTransaction(self,type):
+        pass
+        # if type=="coinbase":
+        #     print("TxnID: "+self.ID+" "+str(self.sender)+" mines 50 coins")
+        #     return
+        # print("TxnID: "+self.ID+" "+str(self.sender)+" pays "+str(self.receiver)+" "+str(self.amount)+" coins")
 
 
