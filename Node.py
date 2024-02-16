@@ -5,6 +5,7 @@ import numpy as np
 import random
 import math
 from dsplot.graph import Graph
+import copy
 # importing other modules
 import Latency
 import Transaction
@@ -31,6 +32,7 @@ class Node:
         self.invalid=[]
         self.blockchain=Blockchain.Blockchain(n)
         self.interArrival=interArrival
+        self.minedCnt=0
         
     def getID(self):
         return self.Id
@@ -74,7 +76,8 @@ class Node:
             whomToSend=ListOfPeers[indexwhomToSend]
         
         # whatToSend=np.random.uniform(0,self.balance/10)
-        whatToSend=np.random.uniform(1,1000)  #ideal case
+        whatToSend=np.random.uniform(1,100)  #ideal case
+        #TODO get balances from blockchain and choose amount accordingly
 
         if whatToSend<=1:
             print("Txn: "+self.Id+" has Insufficient Balance")
@@ -83,8 +86,8 @@ class Node:
         
         Txn = Transaction.Transaction(self.Id,whomToSend.getID(),timestamp,ListOfPeers,"transfer",whatToSend)
         Txn.printTransaction("transfer")
-        self.txnpool.append(Txn)
-
+        self.txnpool.append(Txn)    
+        
         self.toSleep=(np.random.exponential(self.expMean))
         newtimestamp=timestamp+self.toSleep
         eventQueue.put([newtimestamp,Event.Event(self,newtimestamp,None,"generateTransaction",ListOfPeers,eventQueue)])
@@ -120,18 +123,56 @@ class Node:
         #print(len(self.txnpool))
         # print(prevBlock.depth)
         # print(self.blockchain.longestLength)
-        if prevBlock.depth<self.blockchain.longestLength:   # POINT OF FAILURE
-            return
-        
+        # if prevBlock==None:
+        #     return
+
+        # if prevBlock.depth!=self.blockchain.longestLength: 
+        #     #print("mining fauiled",self.idx)  # POINT OF FAILURE
+        #     prevBlock=self.blockchain.getLastBlock()
+        #     nextMine=(np.random.exponential(self.tkMean))
+        #     newtimestamp=timestamp+nextMine
+        #     eventQueue.put([newtimestamp,Event.Event(self,newtimestamp,prevBlock,"mineBlock",ListOfPeers,eventQueue)])
+        #     return
+        #prevBlock=self.blockchain.getLastBlock()
         if len(self.txnpool)==0:
             #adding the event to mine the next block
             nextMine=(np.random.exponential(self.tkMean))
             newtimestamp=timestamp+nextMine
+
             eventQueue.put([newtimestamp,Event.Event(self,newtimestamp,prevBlock,"mineBlock",ListOfPeers,eventQueue)])
             return
 
-            
+        self.minedCnt+=1
+
         newBlock=Block.Block(prevBlock.getHash(),timestamp,self.getID(),prevBlock.depth+1)
+        # newBlockcopy=newBlock
+        # newBlockcopy=newBlockcopy.deepCopyBlk()
+        # tempcopy=prevBlock
+
+        # if newBlock==newBlockcopy:
+        #     print("matching")
+        # else:
+        #     print("not matching")
+        # if newBlock.owner==newBlockcopy.owner:
+        #     print("owner matching")
+        # if newBlock.timestamp==newBlockcopy.timestamp:
+        #     print("timestamp matching")
+        # if newBlock.previous_hash==newBlockcopy.previous_hash:
+        #     print("previous_hash matching")
+        # if newBlock.depth==newBlockcopy.depth:
+        #     print("depth matching")
+        # if newBlock.transactions==newBlockcopy.transactions:
+        #     print("transactions matching")
+        # if newBlock.balances==newBlockcopy.balances:
+        #     print("balances matching")
+        # if newBlock.size==newBlockcopy.size:
+        #     print("size matching")
+        # if newBlock.hash==newBlockcopy.hash:
+        #     print("hash matching")
+        # if newBlock.BlkId==newBlockcopy.BlkId:
+        #     print("BlkId matching")
+        
+        #print(self.idx)
         self.blockchain.longestLength = max(self.blockchain.longestLength,prevBlock.depth+1)
         #Adding coinbase transaction
         coinbasetxn=Transaction.Transaction(self.getID(),self.getID(),timestamp,ListOfPeers,"coinbase",50)
@@ -139,7 +180,7 @@ class Node:
         coinbasetxn.printTransaction("coinbase")
 
        
-        currBalances=prevBlock.balances.copy()    #create a balance copy
+        currBalances=listCopier(prevBlock.balances)   #create a balance copy
         newBlock.balances=currBalances    #Added this to prevent balances from going NULL
         for txn in self.txnpool:
             if newBlock.size>=950:
@@ -174,6 +215,10 @@ class Node:
         #adding block to blockchain
         newBlock.calculateHash()
         self.blockchain.addBlock(newBlock,prevBlock)
+
+        # if self.idx==0:
+        #     for blk in self.blockchain.chain.keys():
+        #         print(blk,self.blockchain.chain[blk])
         # print(prevBlock.balances)
         
         # print(newBlock.balances)
@@ -184,7 +229,8 @@ class Node:
             newtimestamp=timestamp+Latency.generateLatency(ListOfPeers,self.idx,neighbor.idx,newBlock.size)
             # print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"+str(newtimestamp))
            # print(newBlock)
-            eventQueue.put([newtimestamp,Event.Event(neighbor,newtimestamp,newBlock,"receiveBlock",ListOfPeers,eventQueue)])
+            newDeepBlock=newBlock.deepCopyBlk()          
+            eventQueue.put([newtimestamp,Event.Event(neighbor,newtimestamp,newDeepBlock,"receiveBlock",ListOfPeers,eventQueue)])
         
         
         
@@ -221,22 +267,33 @@ class Node:
                 return False
         return True
 
+
+
     def receiveBlock(self,timestamp,block,ListOfPeers,eventQueue):
-        
+        # print("received block "+block.owner+" "+self.Id)
         parentblock=self.blockchain.getBlock(block.previous_hash)
         
-        # 
+        #TODO check if block is already in blockchain
+        
         if parentblock==None:
             # print("no parent "+self.Id+" "+block.hash)
             # print("no parent "+self.Id+" "+block.owner)   
-            self.pending.append(block)
-            return
+            # print("no parent found")
 
-        if not self.verifyBlock(block,ListOfPeers):
+            self.pending.append(block)
+      
+            return
+        copyOfBlk=block.deepCopyBlk()
+
+        if not self.verifyBlock(copyOfBlk,ListOfPeers):
             print("verification failed "+self.Id)
             
-            self.invalid.append(block)
+            self.invalid.append(copyOfBlk)
             return
+
+        copyOfBlk.depth=parentblock.depth+1
+        self.blockchain.longestLength=max(self.blockchain.longestLength,copyOfBlk.depth)
+
         #TECHNIQUE1 FOR ENSURING NON REPEATING TRANSACTIONS
         # for txn in block.transactions:
         #     if txn in self.txnpool:
@@ -245,9 +302,9 @@ class Node:
         #         self.verifiedPool.append(txn)
     
         #TECHNIQUE2 FOR ENSURING NON REPEATING TRANSACTIONS
-        txnpoolCopy=self.txnpool.copy()
-        verifiedPoolCopy=self.verifiedPool.copy()
-        for txn in block.transactions:
+        txnpoolCopy=listCopier(self.txnpool)
+        verifiedPoolCopy=listCopier(self.verifiedPool)
+        for txn in copyOfBlk.transactions:
             if txn in verifiedPoolCopy:
                 return
             else:
@@ -256,17 +313,38 @@ class Node:
                 txnpoolCopy.remove(txn)
         self.txnpool=txnpoolCopy
         self.verifiedPool=verifiedPoolCopy
-
-        self.blockchain.addBlock(block,parentblock)
-
-        #broadcasting the block to neighbors
-        for neighbor in self.neighbors:
-            newtimestamp=timestamp+Latency.generateLatency(ListOfPeers,self.idx,neighbor.idx,block.size)
-            eventQueue.put([newtimestamp,Event.Event(neighbor,newtimestamp,block,"receiveBlock",ListOfPeers,eventQueue)])  
+        self.blockchain.addBlock(copyOfBlk,parentblock)
 
         #check recursively if children of current block exist in pending
+        before=0
+        if self.idx==0:
+            before=len(self.pending)
         for blk in self.pending:
-            if blk.previous_hash==block.getHash():
+
+            if blk.previous_hash==copyOfBlk.getHash():
                 self.pending.remove(blk)
-                self.receiveBlock(timestamp,blk,ListOfPeers,eventQueue)
+                #print(block.depth)
+                self.blockchain.addBlock(blk,copyOfBlk)
+                blk.depth=copyOfBlk.depth+1
+                if blk.depth>self.blockchain.longestLength:
+                    self.blockchain.longestLength=blk.depth
+
+                for neighbor in self.neighbors:
+                    newtimestamp=timestamp+Latency.generateLatency(ListOfPeers,self.idx,neighbor.idx,copyOfBlk.size)
+                    eventQueue.put([newtimestamp,Event.Event(neighbor,newtimestamp,blk.deepCopyBlk(),"receiveBlock",ListOfPeers,eventQueue)])  
+                # self.receiveBlock(timestamp,blk,ListOfPeers,eventQueue)
+        if self.idx==0:
+            print("after",len(self.pending)-before)
+        #broadcasting the block to neighbors
+        for neighbor in self.neighbors:
+            newtimestamp=timestamp+Latency.generateLatency(ListOfPeers,self.idx,neighbor.idx,copyOfBlk.size)
+            eventQueue.put([newtimestamp,Event.Event(neighbor,newtimestamp,copyOfBlk,"receiveBlock",ListOfPeers,eventQueue)])  
+
+
+def listCopier(lst):
+    copylst=[]
+    for i in lst:
+        copylst.append(i)
+    return copylst
+
 

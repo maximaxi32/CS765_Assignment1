@@ -23,19 +23,28 @@ class Blockchain():
         self.createGenesisBlock()
         self.longestLength=1
 
+    def getLastBlock(self):
+        for blk in self.chain:
+            print(blk.depth,self.longestLength)
+            if (blk.depth==self.longestLength):
+                return blk
+        
 
     def createGenesisBlock(self):
         # Create the genesis block
         self.genesisBlock = Block.GenesisBlock(0,self.n)
+        print(self.genesisBlock)
         self.chain[self.genesisBlock]=[]
+       
 
-    def addBlock(self, block,prevBlock):
+    def addBlock(self, block, prevBlock):
         # Add a new block to the chain
-        block.previousHash = prevBlock.hash
-        block.calculateHash()
+        # block.previousHash = prevBlock.hash
+        # block.calculateHash()
         
         # if(self.chain.get(prevBlock)==None):
         #     self.chain[prevBlock]=[]
+
         self.chain[prevBlock].append(block)
         if self.chain.get(block)==None:
             self.chain[block]=[]

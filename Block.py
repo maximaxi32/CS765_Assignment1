@@ -5,6 +5,7 @@ import datetime as dt
 import numpy as np
 import random
 import math
+import copy
 # importing other modules
 import Latency
 import Transaction
@@ -29,7 +30,7 @@ class Block():
         for txn in self.transactions:
             thash+=txn.ID
 
-        self.hash=str(hashlib.sha256((str(self.previous_hash) + self.BlkId + thash).encode()).hexdigest())
+        self.hash=str(hashlib.sha256(str(self.previous_hash).encode() + str(self.BlkId).encode() + str(thash).encode()).hexdigest())
 
     def getHash(self):
         return self.hash        
@@ -40,6 +41,26 @@ class Block():
 
     def getsize(self):
         return self.size
+
+    def deepCopyBlk(self):
+        copyOfBlk = Block(self.previous_hash,self.timestamp,self.owner,self.depth)
+        
+
+        copyOfBlk.previous_hash = self.previous_hash
+        copyOfBlk.BlkId = self.BlkId
+        copyOfBlk.timestamp = self.timestamp
+        copyOfBlk.transactions = []
+        copyOfBlk.balances = []
+        for txn in self.transactions:
+            copyOfBlk.transactions.append(txn)
+        for bal in self.balances:
+            copyOfBlk.balances.append(bal)
+        copyOfBlk.owner = self.owner
+        #copyOfBlk.calculateHash()
+        copyOfBlk.hash = self.hash
+        copyOfBlk.size = self.size
+        copyOfBlk.depth = self.depth
+        return copyOfBlk
     
 
 class GenesisBlock():
@@ -52,6 +73,17 @@ class GenesisBlock():
 
     def getHash(self):
         return self.hash 
+    
+    def deepCopyBlk(self):
+        copyOfBlk = GenesisBlock(self.timestamp,0)
+        copyOfBlk.BlkId = self.BlkId
+        copyOfBlk.timestamp = self.timestamp
+        copyOfBlk.balances =[]
+        for bal in self.balances:
+            copyOfBlk.balances.append(bal)
+        copyOfBlk.hash = self.hash
+        copyOfBlk.depth = self.depth
+        return copyOfBlk
 
 #unit Testing
 

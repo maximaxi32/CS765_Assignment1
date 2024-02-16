@@ -12,7 +12,7 @@ sys.setrecursionlimit(100000)
 import Node
 import Network
 import Event
-
+import Graph
 parser = argparse.ArgumentParser()
 
 rhoMatrix=[]
@@ -46,6 +46,7 @@ def main():
         firstTxn=(np.random.exponential(Tx))
         eventQueue.put([firstTxn,Event.Event(newNode,firstTxn,None,"generateTransaction",ListOfPeers,eventQueue)])
         firstMine=(np.random.exponential(Itr))
+        #firstMine=0
         eventQueue.put([firstMine,Event.Event(newNode,firstMine,newNode.blockchain.genesisBlock,"mineBlock",ListOfPeers,eventQueue)])  
 
 
@@ -53,7 +54,7 @@ def main():
 
     assign_z0(ListOfPeers, z0, n)
     assign_z1(ListOfPeers, z1, n)
-    # Creating the network of nodes
+
     Network.createNetwork(ListOfPeers)
 
 
@@ -69,6 +70,9 @@ def main():
         
         # eventQueue.get()[1].execute(ListOfPeers,eventQueue)
         currEvent=eventQueue.get()[1]
+        #if(currEvent.eventType=="mineBlock"):
+            # print(currEvent.owner.idx)
+        #print(currEvent.timestamp)
         if(currEvent.timestamp>timeLimit):
             break
         # if  currEvent.eventType=="mineBlock" or currEvent.eventType=="generateTransaction":
@@ -85,33 +89,44 @@ def main():
     print("Number of Transactions Generated: "+str(genTxn))
     print("Number of Blocks Mined: "+str(mineCount))
     plotter=dict()
+
+
+    Graph.plotter(ListOfPeers)
     # mapper={"1":["2"],[]}
     # graph1=Graph(mapper,directed=True)
     # graph1.plot()    
 
     #PLOTTING
 
-
-    for key in ListOfPeers[0].blockchain.chain:
-        if plotter.get(int(hash(key.BlkId)))==None:
+    #print("length of node "+str(len(ListOfPeers[0].blockchain.chain))) 
+    
+    # for key in ListOfPeers[4].blockchain.chain:
+    #     if plotter.get(int(hash(key.BlkId)))==None:
             
-            plotter[int(hash(key.BlkId))]=[]
-        for neighbor in ListOfPeers[0].blockchain.chain[key]:
+    #         plotter[int(hash(key.BlkId))]=[]
+    #     for neighbor in ListOfPeers[4].blockchain.chain[key]:
             
-            plotter[int(hash(key.BlkId))].append(int(hash(neighbor.BlkId)))
-            if plotter.get(int(hash(neighbor.BlkId)))==None:
-                plotter[int(hash(neighbor.BlkId))]=[]
-    print(len(plotter))
-    graph=Graph(plotter,directed=True)
-    graph.plot(fill_color='darkorchid')
-
+    #         plotter[int(hash(key.BlkId))].append(int(hash(neighbor.BlkId)))
+    #         if plotter.get(int(hash(neighbor.BlkId)))==None:
+    #             plotter[int(hash(neighbor.BlkId))]=[]
+    # print(len(plotter))
+    # graph=Graph(plotter,directed=True)
+    # graph.plot(fill_color='darkorchid')
 
 
     for peer in range(n):
-        print(ListOfPeers[peer].blockchain.longestLength)
-        for key in ListOfPeers[peer].blockchain.chain:
-            for block in ListOfPeers[peer].blockchain.chain[key]:
-                pass
+        
+        # print(ListOfPeers[peer].blockchain.longestLength)
+        # temp=-1
+        # for key in ListOfPeers[peer].blockchain.chain:
+        #     if(key.BlkId!="1"):
+        #         pass
+        #         #print(ListOfPeers[peer].Id,key.owner)
+        #     #temp=max(temp,key.depth)
+        #     for block in ListOfPeers[peer].blockchain.chain[key]:
+        #         pass
+        
+        # print(temp,ListOfPeers[peer].blockchain.longestLength)
                 # print(block.owner)
         #     print()
             #print(str(key.BlkId)+" "+str(len(ListOfPeers[peer].blockchain.chain[key])))
@@ -120,7 +135,9 @@ def main():
     #     print(txn.sender)
     # for peer in ListOfPeers:
     #     print(len(peer.txnpool))
-    # print(mineCount)
+        print((len(ListOfPeers[peer].blockchain.chain[ListOfPeers[peer].blockchain.genesisBlock])))
+        print(ListOfPeers[peer].minedCnt)
+        print("~~~~~~~~~~~")
     # print(len(ListOfPeers[0].blockchain.chain))
     
 

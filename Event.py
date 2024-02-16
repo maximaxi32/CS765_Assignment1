@@ -1,4 +1,4 @@
-
+import copy
 class Event():
 
     def __init__(self,owner,timestamp,object,eventType,ListOfPeers,eventQueue):
@@ -16,7 +16,7 @@ class Event():
         elif self.eventType=="mineBlock":
             self.owner.mineBlock(self.timestamp,self.object,ListOfPeers,eventQueue)
         elif self.eventType=="receiveBlock":
-            self.owner.receiveBlock(self.timestamp,self.object,ListOfPeers,eventQueue)
+            self.owner.receiveBlock(self.timestamp,self.object.deepCopyBlk(),ListOfPeers,eventQueue)
         else:
             print("Invalid Event Type")
     
