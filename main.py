@@ -147,7 +147,7 @@ def main():
             ListOfPeers[peer].blockchain.farthestBlock.depth,
         )
         totalMined += ListOfPeers[peer].minedCnt
-
+        print("Ratio of Blocks mined on the longest chain : Total Blocks Mined = {} : {} ". format(ListOfPeers[peer].cntInLongest(), ListOfPeers[peer].minedCnt))
         print(
             "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
         )

@@ -457,6 +457,21 @@ class Node:
                 ]
             )
 
+    # function to get the number of blocks mined by the node in its longest chain
+    def cntInLongest(self):
+        cnt=0
+        if self.blockchain.farthestBlock.owner==self.Id:
+            cnt+=1
+        prev_hash=self.blockchain.farthestBlock.previous_hash
+        # iteratively travelling back the blockchain from farthest block to genesis block
+        while prev_hash!=self.blockchain.genesisBlock.hash:
+            for blk in self.blockchain.chain:
+                if blk.getHash()==prev_hash:
+                    if blk.owner==self.Id:
+                        cnt+=1
+                    prev_hash=blk.previous_hash
+                    break
+        return cnt
 
 # function to generate a deepcopy of a list
 def listCopier(lst):
