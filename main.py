@@ -5,6 +5,7 @@ import argparse
 import random
 from queue import PriorityQueue
 import numpy as np
+import os
 
 # importing user modules
 import Node
@@ -53,7 +54,14 @@ def main():
         PriorityQueue()
     )  # Global Event Queue implemented with a min Priority Queue
 
-    open("TxnLog.txt", "w").close()  # Clearing the Transactions Log file
+    # Clearing the Log Files
+    directory="blockLogs"
+    for file in os.listdir(directory):
+        os.remove("blockLogs/"+file)
+    for f in range(n):
+        open("blockLogs/Node"+str(f)+".txt", "w").close()
+
+    open("TxnLog.txt", "w").close()
 
     # Initializing the list of peer nodes
     ListOfPeers = []
@@ -130,10 +138,10 @@ def main():
                 ListOfPeers[peer].isLowCPU,
             )
         )
-        print("Number of Blocks mined: ", ListOfPeers[peer].minedCnt, end=" || ")
-        print("Number of Blocks received: ", ListOfPeers[peer].receivedCnt)
+        print("Number of Blocks mined:", ListOfPeers[peer].minedCnt, end=" || ")
+        print("Number of Blocks received:", ListOfPeers[peer].receivedCnt)
         print(
-            "Length of longest chain in Blockchain: ",
+            "Length of longest chain in Blockchain:",
             ListOfPeers[peer].blockchain.farthestBlock.depth,
         )
         totalMined += ListOfPeers[peer].minedCnt
@@ -142,7 +150,7 @@ def main():
             "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
         )
     print("Number of Generate Transaction Events: " + str(genTxn))
-    print("Total number of Blocks Mined: ", totalMined)
+    print("Total number of Blocks Mined:", totalMined)
 
 
 # Function to assign isSlow values to the Nodes randomly
@@ -177,13 +185,13 @@ def assign_z1(ListOfPeers, z1, n):
 
 
 # function to generate Rho values between every pair of nodes
-def rhoGenerator(ListOfPeers, rhoMatrix):
-    n = len(ListOfPeers)  # number of Nodes in network
+def rhoGenerator(ListOfPeers):
+    n=len(ListOfPeers)  #number of Nodes in network
     for i in range(n):
         for j in range(i):
-            currentRho = np.random.uniform(0.01, 0.5)
-            rhoMatrix[ListOfPeers[i].idx][ListOfPeers[j].idx] = currentRho
-            rhoMatrix[ListOfPeers[j].idx][ListOfPeers[i].idx] = currentRho
+            currentRho=np.random.uniform(0.01,0.5)
+            ListOfPeers[i].rhos[ListOfPeers[j].idx]=currentRho
+            ListOfPeers[j].rhos[ListOfPeers[i].idx]=currentRho
 
 
 # calling the main function

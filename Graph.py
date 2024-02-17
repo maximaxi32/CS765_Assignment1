@@ -1,7 +1,6 @@
 # importing libraries
 from PIL import Image
 from graphviz import Graph
-
 # importing user modules
 import Latency
 import Transaction
@@ -48,29 +47,29 @@ def plotter(ListOfPeers):
         imageFiles.append("graphs/{}.png".format(peer.idx))
         mergedBlockchains(imageFiles)
 
-    # function to generate a merged image of the blockchains
-    def mergedBlockchains(imageFiles):
-        images = [Image.open(x).convert("RGB") for x in imageFiles]
-        widths, heights = zip(*(i.size for i in images))
-        total_width = max(widths)
-        max_height = sum(heights)
-        new_im = Image.new("RGB", (total_width, max_height))
+# function to generate a merged image of the blockchains
+def mergedBlockchains(imageFiles):
+    images = [Image.open(x).convert("RGB") for x in imageFiles]
+    widths, heights = zip(*(i.size for i in images))
+    total_width = max(widths)
+    max_height = sum(heights)
+    new_im = Image.new("RGB", (total_width, max_height))
 
-        x_offset = 0
-        for im in images:
-            new_im.paste(im, (x_offset, 0))
-            x_offset += im.size[0]
+    x_offset = 0
+    for im in images:
+        new_im.paste(im, (x_offset, 0))
+        x_offset += im.size[0]
 
-        images = [Image.open(x).convert("RGB") for x in imageFiles]
-        widths, heights = zip(*(i.size for i in images))
-        total_width = max(widths)
-        max_height = sum(heights) + (10 * (len(images) + 2))
-        new_im = Image.new("RGB", (total_width, max_height))
+    images = [Image.open(x).convert("RGB") for x in imageFiles]
+    widths, heights = zip(*(i.size for i in images))
+    total_width = max(widths)
+    max_height = sum(heights) + (10 * (len(images) + 2))
+    new_im = Image.new("RGB", (total_width, max_height))
 
-        x_offset = 0
-        for im in images:
-            new_im.paste(im, (0, x_offset))
-            x_offset += im.size[1]
-            x_offset += 10
+    x_offset = 0
+    for im in images:
+        new_im.paste(im, (0, x_offset))
+        x_offset += im.size[1]
+        x_offset += 10
 
-        new_im.save("_MergedBlockchain.png")
+    new_im.save("graphs/_MergedBlockchain.png")
