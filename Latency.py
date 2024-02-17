@@ -7,8 +7,11 @@ import math
 from collections import defaultdict
 # importing other modules
 import Node
+import Network
 
-def generateLatency(ListOfPeers,i,j,rho):
+#enter msgSize in KBs
+def generateLatency(ListOfPeers,i,j,msgSize):
+    
     c=0
     if (not ListOfPeers[i].getSlow()) and (not ListOfPeers[j].getSlow()):
         c=100
@@ -16,7 +19,8 @@ def generateLatency(ListOfPeers,i,j,rho):
         c=5
     #everything is in units of bits and seconds
     d=np.random.exponential(96*1000/(c*1000000))
-    latency=(rho)+(1000*8/(c*1000000))+d
+    rho=ListOfPeers[i].rhos[j]
+    latency=10*((rho)+(msgSize*1000*8/(c*1000000))+d)
     return latency
 
 def nested_dict(n, type):
