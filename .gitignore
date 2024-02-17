@@ -12,3 +12,4 @@
 /blockLogs
 /TxnLog.txt
 /*.png
+!Design_Document.png
