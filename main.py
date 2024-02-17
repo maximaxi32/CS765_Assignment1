@@ -54,8 +54,10 @@ def main():
         PriorityQueue()
     )  # Global Event Queue implemented with a min Priority Queue
 
-    # Clearing the Log Files
+    # Creating and Clearing the Log Files
     directory = "blockLogs"
+    if not os.path.isdir(directory):
+        os.mkdir(directory)
     for file in os.listdir(directory):
         os.remove("blockLogs/" + file)
     for f in range(n):
