@@ -14,12 +14,12 @@ import Block
 class Blockchain:
     # constructor
     def __init__(self, n):
-        self.chain = dict()
-        self.n = n
-        self.genesisBlock = None
-        self.createGenesisBlock()
-        self.longestLength = 1
-        self.farthestBlock = self.genesisBlock
+        self.chain = dict()  # dictionary to store the blockchain consisting of blocks and their children
+        self.n = n  # number of nodes in the network
+        self.genesisBlock = None    # genesis block of the blockchain
+        self.createGenesisBlock()   # creating the genesis block using the function
+        self.longestLength = 1  # length of the longest chain in the blockchain
+        self.farthestBlock = self.genesisBlock  # block at the end of the longest chain
 
     # function to get the block at the end of the longest chain
     def getLastBlock(self):

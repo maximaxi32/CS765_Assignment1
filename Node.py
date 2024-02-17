@@ -16,24 +16,24 @@ import Blockchain
 class Node:
     # constructor
     def __init__(self, n, expMean, idx, interArrival):
-        self.Id = str(uuid.uuid4())
-        self.neighbors = []
-        self.isSlow = False
-        self.isLowCPU = False
-        self.toSleep = 1
-        self.expMean = expMean
-        self.txnpool = []
-        self.verifiedPool = []
-        self.idx = idx
-        self.hashPower = 0
-        self.tkMean = 0
-        self.rhos = []
-        self.pending = []
-        self.invalid = []
-        self.blockchain = Blockchain.Blockchain(n)
-        self.interArrival = interArrival
-        self.minedCnt = 0
-        self.receivedCnt = 0
+        self.Id = str(uuid.uuid4()) # unique ID of the node
+        self.neighbors = [] # list of neighbors of the node
+        self.isSlow = False # boolean to check if the node is slow
+        self.isLowCPU = False   # boolean to check if the node has low CPU
+        self.toSleep = 1    # time to sleep before generating the next transaction
+        self.expMean = expMean  # mean of the exponential distribution for transaction generation delay
+        self.txnpool = []   # list of transactions in the transaction pool of this node
+        self.verifiedPool = []  # list of verified transactions by this node
+        self.idx = idx  # index of the node in the list of peers
+        self.hashPower = 0  # hashPower of the node
+        self.tkMean = 0 # mean of the exponential distribution for block mining delay
+        self.rhos = []  # list of rho values of the node with respect to other nodes
+        self.pending = []   # list of pending blocks to be added to the blockchain
+        self.invalid = []   # list of invalid blocks received by the node
+        self.blockchain = Blockchain.Blockchain(n)  # blockchain of the node
+        self.interArrival = interArrival    # interArrival time between two mine block events
+        self.minedCnt = 0   # count of the number of blocks mined by the node
+        self.receivedCnt = 0    # count of the number of blocks received by the node
 
     # function to get the ID of the node
     def getID(self):

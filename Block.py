@@ -13,15 +13,15 @@ import Node
 class Block:
     # constructor
     def __init__(self, previous_hash, timestamp, owner, depth):
-        self.previous_hash = previous_hash
-        self.BlkId = str(uuid.uuid4())
-        self.timestamp = timestamp
-        self.transactions = []
-        self.balances = []
-        self.owner = owner
-        self.hash = ""
-        self.size = 0
-        self.depth = depth
+        self.previous_hash = previous_hash  # hash of the previous/parent block
+        self.BlkId = str(uuid.uuid4())  # unique ID of the block
+        self.timestamp = timestamp  # timestamp of the creation of block
+        self.transactions = []  # list of transactions in the block
+        self.balances = []  # list of balances of the nodes after the transactions
+        self.owner = owner  # owner/creator/miner of the block
+        self.hash = ""  # hash value of the block
+        self.size = 0   # number of transactions in the block
+        self.depth = depth  # depth of the block in the blockchain, from the genesis block
 
     # function to calculate the hash of the block
     def calculateHash(self):

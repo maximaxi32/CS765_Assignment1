@@ -2,10 +2,10 @@
 class Event:
     # constructor
     def __init__(self, owner, timestamp, object, eventType, ListOfPeers, eventQueue):
-        self.owner = owner
-        self.timestamp = timestamp
-        self.object = object
-        self.eventType = eventType
+        self.owner = owner  # owner node of the event, who will execute the event
+        self.timestamp = timestamp  # timestamp of the execution of the event
+        self.object = object    # object on which the event will be executed
+        self.eventType = eventType  # type of the event
 
     # function to execute the event, depending on the event type
     def execute(self, ListOfPeers, eventQueue):
