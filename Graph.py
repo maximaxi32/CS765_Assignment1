@@ -41,7 +41,7 @@ def plotter(ListOfPeers):
         new_im.paste(im, (x_offset,0))
         x_offset += im.size[0]
 
-    new_im.save('merged.png')
+    # new_im.save('merged.png')
     images=[Image.open(x).convert('RGB') for x in imageFiles]
     widths, heights = zip(*(i.size for i in images))
     total_width = max(widths)

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 # importing other modules
 import Node
 
-rhoMatrix = []  # matrix to store the rho values between nodes
+# rhoMatrix = []  # matrix to store the rho values between nodes
 
 # To create a network of Peer Nodes
 def createNetwork(ListofPeers):
@@ -103,13 +103,13 @@ def dfs(node, visited):
             dfs(neighbor, visited)
 
 
-def rhoGenerator(ListOfPeers,rhoMatrix):
-    n=len(ListOfPeers)        #number of Nodes in network
-    for i in range(n):
-        for j in range(i):
-            currentRho=np.random.uniform(0.01,0.5)
-            rhoMatrix[ListOfPeers[i].idx][ListOfPeers[j].idx]=currentRho
-            rhoMatrix[ListOfPeers[j].idx][ListOfPeers[i].idx]=currentRho
+# def rhoGenerator(ListOfPeers,rhoMatrix):
+#     n=len(ListOfPeers)        #number of Nodes in network
+#     for i in range(n):
+#         for j in range(i):
+#             currentRho=np.random.uniform(0.01,0.5)
+#             rhoMatrix[ListOfPeers[i].idx][ListOfPeers[j].idx]=currentRho
+#             rhoMatrix[ListOfPeers[j].idx][ListOfPeers[i].idx]=currentRho
 
-def rhoValue(i,j):
-    return rhoMatrix[i][j]
+# def rhoValue(i,j):
+#     return rhoMatrix[i][j]
