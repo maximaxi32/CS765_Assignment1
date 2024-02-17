@@ -101,7 +101,7 @@ def main():
     totalMined=0
     for peer in range(n):
         print("Stats for Node {} having isSlow={} and isLow={}".format(ListOfPeers[peer].idx,ListOfPeers[peer].isSlow,ListOfPeers[peer].isLowCPU))
-        print("Number of Blocks mined:",ListOfPeers[peer].minedCnt)
+        print("Number of Blocks mined:",ListOfPeers[peer].minedCnt,end=" || ")
         print("Number of Blocks received:",ListOfPeers[peer].receivedCnt)
         print("Length of longest chain in Blockchain:",ListOfPeers[peer].blockchain.farthestBlock.depth)
         totalMined+=ListOfPeers[peer].minedCnt
