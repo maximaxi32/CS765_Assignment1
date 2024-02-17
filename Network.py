@@ -2,6 +2,7 @@
 import random
 import networkx as nx
 import matplotlib.pyplot as plt
+import os 
 
 # importing user modules
 import Node
@@ -89,6 +90,9 @@ def createGraph(ListOfPeers):
     )
 
     # Save the graph as a png file
+    directory = "graphs"
+    if not os.path.isdir(directory):
+        os.mkdir(directory)
     plt.savefig("graphs/_Topology.png")
     plt.clf()
 
