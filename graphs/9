@@ -1,0 +1,38 @@
+graph parent {
+	node [color=teal shape=box3d]
+	edge [color=brown dir=forward]
+	rankdir=LR splines=line
+	1 [label=G]
+	"3e56655e-417f-434e-b2ad-c3db237a25d1" [label=2]
+	"937e5fa0-a144-45c1-ad53-19dbea7119a7" [label=2]
+	"dc669f51-4b66-4e50-8352-1c9d5020543c" [label=2]
+	"826793d6-4943-4642-965b-849161257ecd" [label=3]
+	"9b0f5fb8-2d7a-4be1-8a34-fe80e25f3eea" [label=4]
+	"0711bf0b-cf23-4c55-b7f6-96b23ccf8d41" [label=4]
+	"deaac2f0-d60d-41a0-a120-325adf67ad19" [label=5]
+	"bfb9315e-deae-486d-b730-b16c4197d760" [label=5]
+	"f550908e-7ab8-4a31-9a32-3e325fbdda8e" [label=6]
+	"8b2541fa-2be6-4bf2-a69c-07c1bd1795fa" [label=6]
+	"7129da98-9e77-46d7-8adb-efc189575bd7" [label=7]
+	"e09ad300-c202-4324-afad-24ac33ea9893" [label=8]
+	"c6b5d067-0b1d-4aba-ab98-90efe30cee24" [label=8]
+	"c6d47c57-75f8-4c8b-ace1-7a032d205603" [label=9]
+	"a87e0a4e-9791-4306-a013-200cb0e318f3" [label=10]
+	"7969e162-825a-4f6e-8850-2e30ed5f817e" [label=11]
+	1 -- "3e56655e-417f-434e-b2ad-c3db237a25d1"
+	1 -- "937e5fa0-a144-45c1-ad53-19dbea7119a7"
+	1 -- "dc669f51-4b66-4e50-8352-1c9d5020543c"
+	"dc669f51-4b66-4e50-8352-1c9d5020543c" -- "826793d6-4943-4642-965b-849161257ecd"
+	"826793d6-4943-4642-965b-849161257ecd" -- "9b0f5fb8-2d7a-4be1-8a34-fe80e25f3eea"
+	"826793d6-4943-4642-965b-849161257ecd" -- "0711bf0b-cf23-4c55-b7f6-96b23ccf8d41"
+	"9b0f5fb8-2d7a-4be1-8a34-fe80e25f3eea" -- "deaac2f0-d60d-41a0-a120-325adf67ad19"
+	"0711bf0b-cf23-4c55-b7f6-96b23ccf8d41" -- "bfb9315e-deae-486d-b730-b16c4197d760"
+	"bfb9315e-deae-486d-b730-b16c4197d760" -- "f550908e-7ab8-4a31-9a32-3e325fbdda8e"
+	"bfb9315e-deae-486d-b730-b16c4197d760" -- "8b2541fa-2be6-4bf2-a69c-07c1bd1795fa"
+	"f550908e-7ab8-4a31-9a32-3e325fbdda8e" -- "7129da98-9e77-46d7-8adb-efc189575bd7"
+	"7129da98-9e77-46d7-8adb-efc189575bd7" -- "e09ad300-c202-4324-afad-24ac33ea9893"
+	"7129da98-9e77-46d7-8adb-efc189575bd7" -- "c6b5d067-0b1d-4aba-ab98-90efe30cee24"
+	"c6b5d067-0b1d-4aba-ab98-90efe30cee24" -- "c6d47c57-75f8-4c8b-ace1-7a032d205603"
+	"c6d47c57-75f8-4c8b-ace1-7a032d205603" -- "a87e0a4e-9791-4306-a013-200cb0e318f3"
+	"a87e0a4e-9791-4306-a013-200cb0e318f3" -- "7969e162-825a-4f6e-8850-2e30ed5f817e"
+}

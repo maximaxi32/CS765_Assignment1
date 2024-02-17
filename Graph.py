@@ -1,55 +1,61 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-
+from PIL import Image
 import Latency
 import Transaction
 import Event
 import Block
 import Blockchain
+import pydot
+from graphviz import Graph
 
 def plotter(ListOfPeers):
-    #save_hierarchy_graph_as_png(ListOfPeers[0].blockchain.chain, 'newG.png')
-    for i in range(len(ListOfPeers)):
-        
-        G = nx.Graph(ListOfPeers[i].blockchain.chain)
-# Define the adjacency list of block objects
+    imageFiles=[]
+    for peer in ListOfPeers:
+        edges=set()
+        g=Graph('parent',filename="graph{}.png".format(peer.idx),node_attr={'shape':'box3d','color':'teal'},format="png",edge_attr={'dir':'forward','color':'brown'})
+        g.attr(rankdir='LR',splines='line')
+        for key in peer.blockchain.chain:
+            if key.BlkId == "1":
+                g.node(key.BlkId, label="G")
+                continue
+            g.node(key.BlkId,label=str(key.depth))
+        for key in peer.blockchain.chain:
+            # peer.blockchain.chain[key]=list(set(peer.blockchain.chain[key]))
+            for children in peer.blockchain.chain[key]:
+                if (key.BlkId,children.BlkId) in edges:
+                    continue
+                g.edge(key.BlkId,children.BlkId)
+                edges.add((key.BlkId,children.BlkId))
 
-    # Draw the graph
-        pos = nx.spring_layout(G)
-        nx.draw(G, pos, with_labels=False, node_color='lightblue', node_size=50, font_size=8, font_weight='bold')
+        g.render( 'graphs/'+str(peer.idx),view=False)
+        imageFiles.append("graphs/{}.png".format(peer.idx))
+    images=[Image.open(x).convert('RGB') for x in imageFiles]  # Open images in binary mode and convert to RGB
+    widths, heights = zip(*(i.size for i in images))
+    total_width = max(widths)
+    max_height = sum(heights)
+    new_im = Image.new('RGB', (total_width, max_height))
 
-    # Save the graph as a PNG file
-        plt.savefig("graphs/graph{}.png".format(i))   
-        plt.clf()
+    x_offset = 0
+    for im in images:
+        new_im.paste(im, (x_offset,0))
+        x_offset += im.size[0]
 
+    new_im.save('merged.png')
+    images=[Image.open(x).convert('RGB') for x in imageFiles]
+    widths, heights = zip(*(i.size for i in images))
+    total_width = max(widths)
+    max_height = sum(heights)+(10*(len(images)+2))
+    new_im = Image.new('RGB', (total_width, max_height))
 
-def save_hierarchy_graph_as_png(graph_dict, filename):
-  """Saves a hierarchy graph as a PNG image from a dictionary of key, list pairs.
-
-  Args:
-    graph_dict: A dictionary of key, list pairs, where the keys are the nodes in the
-      graph and the lists are the children of each node.
-    filename: The filename to save the PNG image to.
-  """
-
-  # Create a new figure.
-  fig = plt.figure()
-
-  # Create a hierarchy graph from the dictionary.
-  G = nx.DiGraph()
-  for key, children in graph_dict.items():
-    G.add_node(key)
-    for child in children:
-      G.add_edge(key, child)
-
-  # Draw the graph.
-  nx.draw(G, with_labels=False,node_size=50, font_size=8, font_weight='bold')
-
-  # Save the figure as a PNG image.
-  fig.savefig(filename, format='png')
-
-# Example usage:
+    x_offset = 0
+    for im in images:
+        new_im.paste(im, (0,x_offset))
+        x_offset += im.size[1]
+        x_offset += 10
+    
+    new_im.save('merged.png')
 
 
-
+    
 

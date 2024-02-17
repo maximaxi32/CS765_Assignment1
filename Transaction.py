@@ -18,10 +18,15 @@ class Transaction():
 
     
     def printTransaction(self,type):
-        pass
-        # if type=="coinbase":
-        #     print("TxnID: "+self.ID+" "+str(self.sender)+" mines 50 coins")
-        #     return
-        # print("TxnID: "+self.ID+" "+str(self.sender)+" pays "+str(self.receiver)+" "+str(self.amount)+" coins")
+        
 
+        if type=="coinbase":
+            
+            with open("TxnLog.txt", "a") as myfile:
+                myfile.write("TxnID: "+self.ID+" "+str(self.sender)+" mines 50 coins\n")
+            return
+            
+        with open("TxnLog.txt", "a") as myfile:
+            myfile.write("TxnID: "+self.ID+" "+str(self.sender)+" pays "+str(self.receiver)+" "+str(self.amount)+" coins\n")
+        return
 

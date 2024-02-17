@@ -26,11 +26,6 @@ def createNetwork(ListofPeers):
         # generate a new P2P network
         for _ in range(0, len(ListofPeers)):
 
-            # if(attempts>100):
-            #     print("Could not generate a connected network, take a larger N") 
-            #     return
-            # attempts+=1
-
             numOfNeighbors = random.randint(3, min(len(ListofPeers)-1,6)) - len(ListofPeers[_].getNeighbors())
             if numOfNeighbors <= 0:
                 continue

@@ -67,9 +67,10 @@ class GenesisBlock():
     def __init__(self,timestamp,n):
         self.BlkId = str(1)
         self.timestamp=timestamp
-        self.balances=[100000]*n
+        self.balances=[1000]*n
         self.hash=str(hashlib.sha256((str(self.BlkId).encode())).hexdigest())
         self.depth=1
+        self.owner="-1"
 
     def getHash(self):
         return self.hash 
