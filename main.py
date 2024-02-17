@@ -55,11 +55,11 @@ def main():
     )  # Global Event Queue implemented with a min Priority Queue
 
     # Clearing the Log Files
-    directory="blockLogs"
+    directory = "blockLogs"
     for file in os.listdir(directory):
-        os.remove("blockLogs/"+file)
+        os.remove("blockLogs/" + file)
     for f in range(n):
-        open("blockLogs/Node"+str(f)+".txt", "w").close()
+        open("blockLogs/Node" + str(f) + ".txt", "w").close()
 
     open("TxnLog.txt", "w").close()
 
@@ -186,12 +186,12 @@ def assign_z1(ListOfPeers, z1, n):
 
 # function to generate Rho values between every pair of nodes
 def rhoGenerator(ListOfPeers):
-    n=len(ListOfPeers)  #number of Nodes in network
+    n = len(ListOfPeers)  # number of Nodes in network
     for i in range(n):
         for j in range(i):
-            currentRho=np.random.uniform(0.01,0.5)
-            ListOfPeers[i].rhos[ListOfPeers[j].idx]=currentRho
-            ListOfPeers[j].rhos[ListOfPeers[i].idx]=currentRho
+            currentRho = np.random.uniform(0.01, 0.5)
+            ListOfPeers[i].rhos[ListOfPeers[j].idx] = currentRho
+            ListOfPeers[j].rhos[ListOfPeers[i].idx] = currentRho
 
 
 # calling the main function

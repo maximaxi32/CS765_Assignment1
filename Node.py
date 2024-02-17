@@ -257,7 +257,12 @@ class Node:
         self.blockchain.addBlock(newBlock, self.blockchain.farthestBlock)
         # writing the block to the log file
         with open("blockLogs/Node{}.txt".format(self.idx), "a") as myfile:
-            myfile.write("MINED Block with BlkId: {} @ Timestamp: {} by NodeIdx: {}".format(newBlock.BlkId, timestamp, self.idx) + "\n")
+            myfile.write(
+                "MINED Block with BlkId: {} @ Timestamp: {} by NodeIdx: {}".format(
+                    newBlock.BlkId, timestamp, self.idx
+                )
+                + "\n"
+            )
 
         # updating the longest chain and farthest block, as the new block is on the longest chain
         if newBlock.depth > self.blockchain.longestLength:
@@ -377,7 +382,12 @@ class Node:
         self.blockchain.addBlock(copyOfBlk, parentblock)
         # writing the block to the log file
         with open("blockLogs/Node{}.txt".format(self.idx), "a") as myfile:
-            myfile.write("RECEIVED Block with BlkId: {} @ Timestamp: {} by NodeIdx: {}".format(copyOfBlk.BlkId, timestamp, self.idx) + "\n")
+            myfile.write(
+                "RECEIVED Block with BlkId: {} @ Timestamp: {} by NodeIdx: {}".format(
+                    copyOfBlk.BlkId, timestamp, self.idx
+                )
+                + "\n"
+            )
 
         # check recursively if children of the received block exist in pending
         stillsearching = True
@@ -390,8 +400,15 @@ class Node:
                         self.pending.remove(blk)
                         self.blockchain.addBlock(blk, currBlock)
                         # writing the block to the log file
-                        with open("blockLogs/Node{}.txt".format(self.idx), "a") as myfile:
-                            myfile.write("RECEIVED Block with BlkId: {} @ Timestamp: {} by NodeIdx: {}".format(blk.BlkId, timestamp, self.idx) + "\n")
+                        with open(
+                            "blockLogs/Node{}.txt".format(self.idx), "a"
+                        ) as myfile:
+                            myfile.write(
+                                "RECEIVED Block with BlkId: {} @ Timestamp: {} by NodeIdx: {}".format(
+                                    blk.BlkId, timestamp, self.idx
+                                )
+                                + "\n"
+                            )
 
                         # updating the longest chain and farthest block if the new block is on the longest chain
                         blk.depth = currBlock.depth + 1
