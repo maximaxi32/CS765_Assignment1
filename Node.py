@@ -1,11 +1,9 @@
 # importing libraries
 import uuid
-import datetime as dt
 import numpy as np
 import random
-import math
-from dsplot.graph import Graph
 import copy
+
 # importing other modules
 import Latency
 import Transaction
@@ -13,41 +11,47 @@ import Event
 import Block
 import Blockchain
 
-# Class to store the Node
+
+# class describing a Peer node in the network
 class Node:
-    def __init__(self,n,expMean,idx,interArrival):
+    # constructor
+    def __init__(self, n, expMean, idx, interArrival):
         self.Id = str(uuid.uuid4())
         self.neighbors = []
         self.isSlow = False
         self.isLowCPU = False
-        self.toSleep=1
-        self.expMean=expMean
-        self.txnpool=[]
-        self.verifiedPool=[]
-        self.idx=idx
-        self.hashPower=0
-        self.tkMean=0
-        self.rhos=[]
-        self.pending=[]
-        self.invalid=[]
-        self.blockchain=Blockchain.Blockchain(n)
-        self.interArrival=interArrival
-        self.minedCnt=0
-        self.receivedCnt=0
-        
-        
+        self.toSleep = 1
+        self.expMean = expMean
+        self.txnpool = []
+        self.verifiedPool = []
+        self.idx = idx
+        self.hashPower = 0
+        self.tkMean = 0
+        self.rhos = []
+        self.pending = []
+        self.invalid = []
+        self.blockchain = Blockchain.Blockchain(n)
+        self.interArrival = interArrival
+        self.minedCnt = 0
+        self.receivedCnt = 0
+
+    # function to get the ID of the node
     def getID(self):
         return self.Id
 
+    # function to set the isSlow value of the node
     def setSlow(self, isSlow):
         self.isSlow = isSlow
-        
+
+    # function to return the isSlow value of the node
     def getSlow(self):
         return self.isSlow
 
+    # function to set the isLowCPU value of the node
     def setLowCPU(self, isLowCPU):
         self.isLowCPU = isLowCPU
-        
+
+    # function to return the isLowCPU value of the node
     def getLowCPU(self):
         return self.isLowCPU
 
@@ -58,273 +62,379 @@ class Node:
     # Return a list of node's neighbors
     def getNeighbors(self):
         return self.neighbors
-    
-    def setHashPower(self,hashPower):
-        self.hashPower=hashPower
-        self.tkMean=(self.interArrival)/hashPower
 
-    # def firstTransaction(self,ListOfPeers):
-    #     toSleep=math.ceil(np.random.exponential(self.expMean))
-    #     firstTxn=Transaction.Transaction(self,0,ListOfPeers,"create")
-    #     eventQ
+    # function to set the hashPower of the node
+    def setHashPower(self, hashPower):
+        self.hashPower = hashPower
+        self.tkMean = (self.interArrival) / hashPower
 
+    # function to generate a transaction
+    def generateTransaction(self, timestamp, ListOfPeers, eventQueue):
+        # randomly choosing a peer to send currency to, other than itself
+        n = len(ListOfPeers)
+        whomToSend = ListOfPeers[random.randint(0, n - 1)]
+        indexwhomToSend = self.idx
+        while ListOfPeers[indexwhomToSend].getID() == self.Id:
+            indexwhomToSend = random.randint(0, n - 1)
+            whomToSend = ListOfPeers[indexwhomToSend]
 
-    def generateTransaction(self,timestamp,ListOfPeers,eventQueue):
-        n=len(ListOfPeers)        #number of Nodes in network
-        whomToSend=ListOfPeers[random.randint(0,n-1)]
-        indexwhomToSend=self.idx
-        while ListOfPeers[indexwhomToSend].getID()==self.Id:
-            indexwhomToSend=random.randint(0,n-1)
-            whomToSend=ListOfPeers[indexwhomToSend]
-        
-        # whatToSend=np.random.uniform(0,self.balance/10)
-        currBalances=self.blockchain.getLastBlock().balances
-        whatToSend=np.random.uniform(1,currBalances[self.idx]/10)  #ideal case
+        # randomly choosing the amount to send
+        currBalances = self.blockchain.getLastBlock().balances
+        whatToSend = np.random.uniform(1, max(1, currBalances[self.idx] / 10))
 
-        if whatToSend<=1:
+        # if less than 1 coin is left for the peer, then no transaction should be generated
+        if currBalances[self.idx] <= 1:
             with open("TxnLog.txt", "a") as myfile:
-                myfile.write("Txn: "+self.Id+" has Insufficient Balance\n")
+                myfile.write("Txn: " + self.Id + " has Insufficient Balance\n")
             return
-        
-        
-        Txn = Transaction.Transaction(self.Id,whomToSend.getID(),timestamp,ListOfPeers,"transfer",whatToSend)
+
+        # creating the transaction object and adding it to the transaction pool
+        Txn = Transaction.Transaction(
+            self.Id, whomToSend.getID(), timestamp, ListOfPeers, "transfer", whatToSend
+        )
         Txn.printTransaction("transfer")
-        self.txnpool.append(Txn)    
-        
-        self.toSleep=(np.random.exponential(self.expMean))
-        newtimestamp=timestamp+self.toSleep
-        eventQueue.put([newtimestamp,Event.Event(self,newtimestamp,None,"generateTransaction",ListOfPeers,eventQueue)])
-        
-        # if(Txn.type=="coinbase"):
-        #     print(Txn.sender, Txn.receiver)
-
-        for neighbor in self.neighbors:
-            newtimestamp=timestamp+Latency.generateLatency(ListOfPeers,self.idx,neighbor.idx,1)
-            eventQueue.put([newtimestamp,Event.Event(neighbor,newtimestamp,Txn,"receiveTransaction",ListOfPeers,eventQueue)])      
-            
-         
-    def receiveTransaction(self,timestamp,Txn,ListOfPeers,eventQueue):
-        #print(self.Id,Txn.sender)
-        if((Txn in self.txnpool) or (Txn in self.verifiedPool)): 
-            return   #if the transaction is already in the pool, then ignore it
         self.txnpool.append(Txn)
-        # print(self.Id,Txn.sender)
-        # print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        # print(str(self.Id)+" ~ "+str(Txn.sender))    
 
-        
-        # if(self.idx==0):
-        #     print(Txn.sender)
-            #   or (Txn in self.verifiedPool)
-        
+        # scheduling the next transaction generation event
+        self.toSleep = np.random.exponential(self.expMean)
+        newtimestamp = timestamp + self.toSleep
+        eventQueue.put(
+            [
+                newtimestamp,
+                Event.Event(
+                    self,
+                    newtimestamp,
+                    None,
+                    "generateTransaction",
+                    ListOfPeers,
+                    eventQueue,
+                ),
+            ]
+        )
+
+        # broadcasting the generated transaction to its neighbors
         for neighbor in self.neighbors:
-            newtimestamp=timestamp+Latency.generateLatency(ListOfPeers,self.idx,neighbor.idx,1)
-            eventQueue.put([newtimestamp,Event.Event(neighbor,newtimestamp,Txn,"receiveTransaction",ListOfPeers,eventQueue)])      
+            # network latency based on the size of message to be broadcasted
+            newtimestamp = timestamp + Latency.generateLatency(
+                ListOfPeers, self.idx, neighbor.idx, 1
+            )
+            # putting the receive Transaction event for the neighbors in the eventQueue
+            eventQueue.put(
+                [
+                    newtimestamp,
+                    Event.Event(
+                        neighbor,
+                        newtimestamp,
+                        Txn,
+                        "receiveTransaction",
+                        ListOfPeers,
+                        eventQueue,
+                    ),
+                ]
+            )
 
-    def mineBlock(self,timestamp,prevBlock,ListOfPeers,eventQueue):
-              
-        if prevBlock.BlkId != self.blockchain.farthestBlock.BlkId: 
-            newprevBlock=self.blockchain.getLastBlock()
-            nextMine=(np.random.exponential(self.tkMean))
-            newtimestamp=timestamp+nextMine
-            eventQueue.put([newtimestamp,Event.Event(self,newtimestamp,newprevBlock,"mineBlock",ListOfPeers,eventQueue)])
+    # function to receive a transaction, sent by another peer
+    def receiveTransaction(self, timestamp, Txn, ListOfPeers, eventQueue):
+        # if the transaction is already in the pool, then ignore it
+        if (Txn in self.txnpool) or (Txn in self.verifiedPool):
             return
-        #prevBlock=self.blockchain.getLastBlock()
-        if len(self.txnpool)==0:
-            #adding the event to mine the next block
-            nextMine=(np.random.exponential(self.tkMean))
-            newtimestamp=timestamp+nextMine
+        # if the transaction has not been seen before, then add it to your transaction pool
+        self.txnpool.append(Txn)
 
-            eventQueue.put([newtimestamp,Event.Event(self,newtimestamp,prevBlock,"mineBlock",ListOfPeers,eventQueue)])
-            return
+        # broadcasting the received transaction to its neighbors
+        for neighbor in self.neighbors:
+            # network latency based on the size of message to be broadcasted
+            newtimestamp = timestamp + Latency.generateLatency(
+                ListOfPeers, self.idx, neighbor.idx, 1
+            )
+            eventQueue.put(
+                [
+                    newtimestamp,
+                    Event.Event(
+                        neighbor,
+                        newtimestamp,
+                        Txn,
+                        "receiveTransaction",
+                        ListOfPeers,
+                        eventQueue,
+                    ),
+                ]
+            )
 
-        self.minedCnt+=1
+    # function to mine a block by a node
+    def mineBlock(self, timestamp, prevBlock, ListOfPeers, eventQueue):
+        # if the previous block is not the farthest block, then schedule the next mineBlock event on the new longest chain
+        if prevBlock.BlkId != self.blockchain.farthestBlock.BlkId:
+            # the last block of the new longest chain
+            newprevBlock = self.blockchain.getLastBlock()
+            nextMine = np.random.exponential(self.tkMean)
+            newtimestamp = timestamp + nextMine
+            eventQueue.put(
+                [
+                    newtimestamp,
+                    Event.Event(
+                        self,
+                        newtimestamp,
+                        newprevBlock,
+                        "mineBlock",
+                        ListOfPeers,
+                        eventQueue,
+                    ),
+                ]
+            )
+            return  # return without mining a block
 
-        newBlock=Block.Block(prevBlock.getHash(),timestamp,self.getID(),prevBlock.depth+1)
-       
-       
-        
+        # if the transaction pool is empty, then schedule the next mineBlock event, without mining a block now
+        if len(self.txnpool) == 0:
+            nextMine = np.random.exponential(self.tkMean)
+            newtimestamp = timestamp + nextMine
+            eventQueue.put(
+                [
+                    newtimestamp,
+                    Event.Event(
+                        self,
+                        newtimestamp,
+                        prevBlock,
+                        "mineBlock",
+                        ListOfPeers,
+                        eventQueue,
+                    ),
+                ]
+            )
+            return  # return without mining a block
 
-        #Adding coinbase transaction
-        coinbasetxn=Transaction.Transaction(self.getID(),self.getID(),timestamp,ListOfPeers,"coinbase",50)
+        # counting the number of blocks mined by the node in total
+        self.minedCnt += 1
+
+        # creating a new block to be mined
+        newBlock = Block.Block(
+            prevBlock.getHash(), timestamp, self.getID(), prevBlock.depth + 1
+        )
+
+        # adding coinbase transaction to the new block
+        coinbasetxn = Transaction.Transaction(
+            self.getID(), self.getID(), timestamp, ListOfPeers, "coinbase", 50
+        )
         newBlock.addTransaction(coinbasetxn)
         coinbasetxn.printTransaction("coinbase")
 
-       
-        currBalances=listCopier(prevBlock.balances)   #create a balance copy
-        newBlock.balances=currBalances    #Added this to prevent balances from going NULL
+        # create a Deep copy of the balances array from the farthest block in the longest chain
+        currBalances = listCopier(prevBlock.balances)
+        newBlock.balances = currBalances
+
+        # adding transactions from the transaction pool to the new mined block
         for txn in self.txnpool:
-            if newBlock.size>=990:
+            # add upto 990 KiloBytes of transactions to the block, as block size limit is 1 MegaByte
+            if newBlock.size >= 990:
                 break
-            senderIdx=-1
-            receiverIdx=-1
-            # To get the indices of sender and receiver
+
+            senderIdx = -1
+            receiverIdx = -1
+            # To get the indices of sender and receiver, from their IDs
             for peer in ListOfPeers:
-                if peer.getID()==txn.sender:
-                    senderIdx=peer.idx
-                if peer.getID()==txn.receiver:
-                    receiverIdx=peer.idx
+                if peer.getID() == txn.sender:
+                    senderIdx = peer.idx
+                if peer.getID() == txn.receiver:
+                    receiverIdx = peer.idx
 
-            
-            if currBalances[senderIdx]>=txn.amount:
-                # print(senderIdx,end=" ")
-                # print("amount "+str(txn.amount))
-                currBalances[senderIdx]-=txn.amount
-                currBalances[receiverIdx]+=txn.amount
+            # if the sender has enough balance to send the amount, then update the balances and add the transaction to the block
+            if currBalances[senderIdx] >= txn.amount:
+                currBalances[senderIdx] -= txn.amount
+                currBalances[receiverIdx] += txn.amount
+                newBlock.balances = currBalances
+
+                # adding the transaction to the block
                 newBlock.addTransaction(txn)
-                # print(len(newBlock.transactions))
-                newBlock.balances=currBalances
-                self.txnpool.remove(txn)
-                self.verifiedPool.append(txn)                         
+                self.txnpool.remove(
+                    txn
+                )  # remove the transaction from the transaction pool
+                self.verifiedPool.append(
+                    txn
+                )  # add the transaction to the verified transactions pool
 
-        #adding block to blockchain
-        
+        # adding the newly mined block to the blockchain
         newBlock.calculateHash()
-        # print(self.blockchain.farthestBlock.BlkId, self.blockchain.farthestBlock.depth) 
-        self.blockchain.addBlock(newBlock,self.blockchain.farthestBlock)
-        if newBlock.depth>self.blockchain.longestLength:
+        self.blockchain.addBlock(newBlock, self.blockchain.farthestBlock)
+
+        # updating the longest chain and farthest block, as the new block is on the longest chain
+        if newBlock.depth > self.blockchain.longestLength:
             self.blockchain.longestLength = newBlock.depth
-            self.blockchain.farthestBlock=newBlock
+            self.blockchain.farthestBlock = newBlock
 
-        # if self.idx==0:
-        #     for blk in self.blockchain.chain.keys():
-        #         print(blk,self.blockchain.chain[blk])
-        # print(prevBlock.balances)
-        
-        # print(newBlock.balances)
-        # print(len(newBlock.transactions))
-        # print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        #broadcasting the block to neighbors
+        # broadcasting the newly mined block to its neighbors, with latency based on block size
         for neighbor in self.neighbors:
-            newtimestamp=timestamp+Latency.generateLatency(ListOfPeers,self.idx,neighbor.idx,newBlock.size)
-            # print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"+str(newtimestamp))
-           # print(newBlock)
-            newDeepBlock=newBlock.deepCopyBlk()          
-            eventQueue.put([newtimestamp,Event.Event(neighbor,newtimestamp,newDeepBlock,"receiveBlock",ListOfPeers,eventQueue)])
-        
-        
-        
-        #adding the event to mine the next block
-        nextMine=(np.random.exponential(self.tkMean))
-        newtimestamp=timestamp+nextMine
-        eventQueue.put([newtimestamp,Event.Event(self,newtimestamp,newBlock,"mineBlock",ListOfPeers,eventQueue)])
+            newtimestamp = timestamp + Latency.generateLatency(
+                ListOfPeers, self.idx, neighbor.idx, newBlock.size
+            )
 
+            # creating a deepcopy of the block to be broadcasted, to prevent pass by reference
+            newDeepBlock = newBlock.deepCopyBlk()
+            # setting the receiveBlock event for the neighbors in the eventQueue
+            eventQueue.put(
+                [
+                    newtimestamp,
+                    Event.Event(
+                        neighbor,
+                        newtimestamp,
+                        newDeepBlock,
+                        "receiveBlock",
+                        ListOfPeers,
+                        eventQueue,
+                    ),
+                ]
+            )
 
-    def verifyBlock(self,block,ListOfPeers):
-        parentHash=block.previous_hash
-        parentBlock=self.blockchain.getBlock(parentHash)
-        
-        curBalances=parentBlock.balances.copy()
+        # adding the event to mine the next block after the intended random delay
+        nextMine = np.random.exponential(self.tkMean)
+        newtimestamp = timestamp + nextMine
+        eventQueue.put(
+            [
+                newtimestamp,
+                Event.Event(
+                    self, newtimestamp, newBlock, "mineBlock", ListOfPeers, eventQueue
+                ),
+            ]
+        )
+
+    # function to verify if a block is valid or not
+    def verifyBlock(self, block, ListOfPeers):
+        # getting balances of every node from the previous block
+        parentHash = block.previous_hash
+        parentBlock = self.blockchain.getBlock(parentHash)
+        curBalances = parentBlock.balances.copy()
+
+        # verifying all the transactions
         for txn in block.transactions:
-            if txn.type=="coinbase":
+            if txn.type == "coinbase":
                 continue
 
-            senderIdx=-1
-            receiverIdx=-1
+            # for transfer type transactions
+            senderIdx = -1
+            receiverIdx = -1
             for peer in ListOfPeers:
-                if peer.getID()==txn.sender:
-                    senderIdx=peer.idx
-                if peer.getID()==txn.receiver:
-                    receiverIdx=peer.idx
-            if curBalances[senderIdx]>=txn.amount:
-                curBalances[senderIdx]-=txn.amount
-                curBalances[receiverIdx]+=txn.amount
+                if peer.getID() == txn.sender:
+                    senderIdx = peer.idx
+                if peer.getID() == txn.receiver:
+                    receiverIdx = peer.idx
+            if curBalances[senderIdx] >= txn.amount:
+                curBalances[senderIdx] -= txn.amount
+                curBalances[receiverIdx] += txn.amount
             else:
+                # invalid transaction, where sender has insufficient balance
                 return False
         return True
 
-
-
-    def receiveBlock(self,timestamp,block,ListOfPeers,eventQueue):
-
-        
+    # function to receive a block, sent by another peer
+    def receiveBlock(self, timestamp, block, ListOfPeers, eventQueue):
+        # if the block is already in the blockchain, then ignore it
         for blk in self.blockchain.chain:
-            if blk.BlkId==block.BlkId:
+            if blk.BlkId == block.BlkId:
                 return
-        parentblock=self.blockchain.getBlock(block.previous_hash)
-        
 
-
-        if parentblock==None:
+        # check if parent block exists in the blockchain, if not, put the block in the list of pending blocks
+        parentblock = self.blockchain.getBlock(block.previous_hash)
+        if parentblock == None:
             if block in self.pending:
                 return
             self.pending.append(block)
-      
             return
-        copyOfBlk=block.deepCopyBlk()
 
-        if not self.verifyBlock(copyOfBlk,ListOfPeers):
-            print("verification failed "+self.Id)
-            
+        # make a deep copy of block to prevent pass by reference
+        copyOfBlk = block.deepCopyBlk()
+
+        # if the block is invalid, then put it in the list of invalid blocks
+        if not self.verifyBlock(copyOfBlk, ListOfPeers):
+            # print("verification failed " + self.Id)
             self.invalid.append(copyOfBlk)
             return
 
-
-
-    
-        #TECHNIQUE2 FOR ENSURING NON REPEATING TRANSACTIONS
-        txnpoolCopy=listCopier(self.txnpool)
-        verifiedPoolCopy=listCopier(self.verifiedPool)
+        # ensure that the transactions in the block are not in the transaction pool and verified pool
+        txnpoolCopy = listCopier(self.txnpool)
+        verifiedPoolCopy = listCopier(self.verifiedPool)
         for txn in copyOfBlk.transactions:
             if txn in verifiedPoolCopy:
-               pass
+                pass
             else:
                 verifiedPoolCopy.append(txn)
             if txn in txnpoolCopy:
                 txnpoolCopy.remove(txn)
-        self.txnpool=txnpoolCopy
-        self.verifiedPool=verifiedPoolCopy
+        self.txnpool = txnpoolCopy
+        self.verifiedPool = verifiedPoolCopy
 
-        self.receivedCnt+=1
-        copyOfBlk.depth=parentblock.depth+1
-        if copyOfBlk.depth>self.blockchain.longestLength:   
-            self.blockchain.longestLength=copyOfBlk.depth
-            self.blockchain.farthestBlock=copyOfBlk
+        # to count the number of blocks received by the node
+        self.receivedCnt += 1
 
-        self.blockchain.addBlock(copyOfBlk,parentblock)
+        # if the received block makes a new longest chain, then update the longest length and farthest block
+        copyOfBlk.depth = parentblock.depth + 1
+        if copyOfBlk.depth > self.blockchain.longestLength:
+            self.blockchain.longestLength = copyOfBlk.depth
+            self.blockchain.farthestBlock = copyOfBlk
 
-        #check recursively if children of current block exist in pending
-        before=0
-        if self.idx==0:
-            before=len(self.pending)
-       
-        stillsearching=True
-        while stillsearching==True and len(self.pending)>0:
-            stillsearching=False
+        # adding the block to the blockchain
+        self.blockchain.addBlock(copyOfBlk, parentblock)
+
+        # check recursively if children of the received block exist in pending
+        stillsearching = True
+        while stillsearching == True and len(self.pending) > 0:
+            stillsearching = False
             for blk in self.pending:
-                
                 for currBlock in self.blockchain.chain:
-
-                    if blk.previous_hash==currBlock.getHash():
+                    if blk.previous_hash == currBlock.getHash():
+                        # if the received block is a parent of one of the pending blocks, add it to the blockchain
                         self.pending.remove(blk)
-                        #print(block.depth)
-                        self.blockchain.addBlock(blk,currBlock)
-                        blk.depth=currBlock.depth+1
-                        if blk.depth>self.blockchain.longestLength:
-                            self.blockchain.longestLength=blk.depth
-                            self.blockchain.farthestBlock=blk
-                        
+                        self.blockchain.addBlock(blk, currBlock)
+
+                        # updating the longest chain and farthest block if the new block is on the longest chain
+                        blk.depth = currBlock.depth + 1
+                        if blk.depth > self.blockchain.longestLength:
+                            self.blockchain.longestLength = blk.depth
+                            self.blockchain.farthestBlock = blk
+
+                        # broadcasting the receive block event to the neighbors, for one of the pending blocks
                         for neighbor in self.neighbors:
-                            newtimestamp=timestamp+Latency.generateLatency(ListOfPeers,self.idx,neighbor.idx,blk.size)
-                            eventQueue.put([newtimestamp,Event.Event(neighbor,newtimestamp,blk.deepCopyBlk(),"receiveBlock",ListOfPeers,eventQueue)])  
-                        stillsearching=True
+                            newtimestamp = timestamp + Latency.generateLatency(
+                                ListOfPeers, self.idx, neighbor.idx, blk.size
+                            )
+                            eventQueue.put(
+                                [
+                                    newtimestamp,
+                                    Event.Event(
+                                        neighbor,
+                                        newtimestamp,
+                                        blk.deepCopyBlk(),
+                                        "receiveBlock",
+                                        ListOfPeers,
+                                        eventQueue,
+                                    ),
+                                ]
+                            )
+                        # to check if some chain is being formed by the pending blocks
+                        stillsearching = True
                         break
-            
-                    # self.receiveBlock(timestamp,blk,ListOfPeers,eventQueue)
-        
-        
-        
-        
-        #broadcasting the block to neighbors
+
+        # broadcasting the block to neighbors, with some latency based on the size of the block
         for neighbor in self.neighbors:
-            newtimestamp=timestamp+Latency.generateLatency(ListOfPeers,self.idx,neighbor.idx,copyOfBlk.size)
-            eventQueue.put([newtimestamp,Event.Event(neighbor,newtimestamp,copyOfBlk,"receiveBlock",ListOfPeers,eventQueue)])  
+            newtimestamp = timestamp + Latency.generateLatency(
+                ListOfPeers, self.idx, neighbor.idx, copyOfBlk.size
+            )
+            eventQueue.put(
+                [
+                    newtimestamp,
+                    Event.Event(
+                        neighbor,
+                        newtimestamp,
+                        copyOfBlk,
+                        "receiveBlock",
+                        ListOfPeers,
+                        eventQueue,
+                    ),
+                ]
+            )
 
 
+# function to generate a deepcopy of a list
 def listCopier(lst):
-    copylst=[]
+    copylst = []
     for i in lst:
         copylst.append(i)
     return copylst
-
-

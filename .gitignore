@@ -7,7 +7,7 @@
 /dataSources/
 /dataSources.local.xml
 /graphs
-/*.txt
+/TxnLog.txt
 /*.png
 /sim=2000
 

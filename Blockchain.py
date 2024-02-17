@@ -1,10 +1,7 @@
 # importing libraries
 import hashlib
 import uuid
-import datetime as dt
-import numpy as np
-import random
-import math
+
 # importing other modules
 import Latency
 import Transaction
@@ -13,37 +10,35 @@ import Node
 import Block
 
 
-
-class Blockchain():
+# class describing a blockchain
+class Blockchain:
+    # constructor
     def __init__(self, n):
         self.chain = dict()
-        # self.ListOfPeers = ListOfPeers
-        self.n=n
-        self.genesisBlock=None
+        self.n = n
+        self.genesisBlock = None
         self.createGenesisBlock()
-        self.longestLength=1
-        self.farthestBlock=self.genesisBlock
+        self.longestLength = 1
+        self.farthestBlock = self.genesisBlock
 
+    # function to get the block at the end of the longest chain
     def getLastBlock(self):
         return self.farthestBlock
-        
 
+    # function to create the genesis block
     def createGenesisBlock(self):
-        # Create the genesis block
-        self.genesisBlock = Block.GenesisBlock(0,self.n)
-        self.chain[self.genesisBlock]=[]
-       
+        self.genesisBlock = Block.GenesisBlock(0, self.n)
+        self.chain[self.genesisBlock] = []
 
+    # function to add a block to the blockchain after a given block
     def addBlock(self, block, prevBlock):
-        # Add a new block to the chain
         self.chain[prevBlock].append(block)
-        if self.chain.get(block)==None:
-            self.chain[block]=[]
+        if self.chain.get(block) == None:
+            self.chain[block] = []
 
-    def getBlock(self,hashSearch):
-
+    # function to return the block with a given hash
+    def getBlock(self, hashSearch):
         for blk in self.chain:
-            if str(blk.hash)==str(hashSearch):
+            if str(blk.hash) == str(hashSearch):
                 return blk
         return None
-
