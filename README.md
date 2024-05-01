@@ -1,6 +1,6 @@
-# CS765 Spring 2023 Semester, Project Part-1
+# CS765 Spring 2023-24 Semester, Project Part-1
 # Simulation of a P2P Cryptocurrency Network
-
+(Part-2 Link: https://github.com/maximaxi32/CS765_Assignment2)
 
 ## Created By:
 ### Abhishek Dixit (22M0761), Rishabh Singh (22M0762) and Osim Abes (22M0825)
